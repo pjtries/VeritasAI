@@ -4,3 +4,8 @@ pydantic
 python-dotenv
 async-timeout
 httpx
+sentence-transformers
+torch
+google-genai
+python-multipart
+pillow
