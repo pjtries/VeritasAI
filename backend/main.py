@@ -110,23 +110,24 @@ async def start_scan(
         client = get_gemini_client()
         from google.genai import types
         from pydantic import BaseModel
+        import base64
 
         golden_prompt = f"""
-        INPUT:
-        - Caption/Text: {input_text}
-        - Hashtags: None extracted natively yet
-        - Audio Transcript: {transcription}
-        - Top Comments: None
-        - Upload Timestamp: TBD
-        - Claimed Event Date: TBD
+        INPUT CONTEXT:
+        - User's Provided Message/Caption or URL: {input_text}
+        - Audio Transcript Extraction: {transcription}
 
+        CRITICAL INSTRUCTION:
+        Do NOT evaluate the user's prompt itself as the content to be fact-checked (e.g. if the user says "is this real?", do not return that the user's request is benign and contains no clickbait). You MUST evaluate the *subject matter*, the *attached image* (if provided), or the *URL payload*.
+        Determine if the media/content being referred to uses deceptive narratives, clickbait, or synthetic signatures.
+        
         TASK:
-        1. Analyze whether the narrative matches the claimed timeline.
-        2. Detect clickbait exaggeration or emotional manipulation language.
+        1. Analyze whether the narrative matches the claimed timeline or image.
+        2. Detect clickbait exaggeration, emotional manipulation, or synthetic properties in the subject media.
         3. Identify contextual contradictions.
         4. Flag suspicious amplification patterns.
         5. Assign:
-           - deception_score: integer (0-100)
+           - deception_score: integer (0-100) (High for manipulated/clickbait, low for authentic/neutral)
            - risk_category: string ("Contextual", "Synthetic", "Narrative", or "Benign")
            - explanation_summary: string
            - confidence_score: float (0.0 to 1.0)
@@ -138,9 +139,22 @@ async def start_scan(
             explanation_summary: str
             confidence_score: float
 
+        gemini_contents = [golden_prompt]
+
+        if file:
+            await file.seek(0)
+            file_bytes = await file.read()
+            mime_type = file.content_type or "application/octet-stream"
+            
+            # Pass image natively to Gemini if supported
+            if "image" in mime_type:
+                gemini_contents.append(
+                    types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
+                )
+
         response = client.models.generate_content(
             model='gemini-2.5-flash',
-            contents=golden_prompt,
+            contents=gemini_contents,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=TriageResult,
