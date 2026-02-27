@@ -9,3 +9,4 @@ torch
 google-genai
 python-multipart
 pillow
+groq

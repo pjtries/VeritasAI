@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Shield, AlertTriangle, CheckCircle, Search, Activity, Cpu, Database, Network, Upload, FileText, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import DeepForensicRoom from './DeepForensicRoom';
 
 type RiskCategory = 'Contextual' | 'Synthetic' | 'Narrative' | 'Benign';
 
@@ -21,6 +22,7 @@ export default function ScoreDashboard() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
+  const [showPhase2, setShowPhase2] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +41,7 @@ export default function ScoreDashboard() {
 
     setLoading(true);
     setResult(null);
+    setShowPhase2(false);
     try {
       const formData = new FormData();
       if (textContent.trim()) formData.append('text_content', textContent);
@@ -218,11 +221,11 @@ export default function ScoreDashboard() {
                 {result.routing_decision.length > 0 ? (
                   <div className="space-y-3 flex-1 flex flex-col justify-center">
                     {result.routing_decision.map((tool, i) => (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.15 }}
-                        key={i} 
+                        key={i}
                         className="flex items-center gap-3 bg-zinc-950 p-4 rounded-xl border border-zinc-800/50 hover:border-zinc-700 transition-colors"
                       >
                         <div className="h-2.5 w-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]" />
@@ -259,6 +262,29 @@ export default function ScoreDashboard() {
               <p><span className="text-yellow-500/50">&gt;</span> Identified threat vector: {result.category}</p>
               <p><span className="text-green-500/50">&gt;</span> Routed to {result.routing_decision.length} forensic rooms.</p>
             </div>
+
+            {/* Phase 2 Escalation Trigger */}
+            {result.routing_decision.length > 0 && !showPhase2 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex justify-center pt-4"
+              >
+                <button
+                  onClick={() => setShowPhase2(true)}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 hover:border-red-500 px-8 py-4 rounded-2xl font-bold tracking-widest uppercase transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:shadow-[0_0_30px_rgba(239,68,68,0.4)]"
+                >
+                  <AlertTriangle className="animate-pulse" />
+                  Proceed to Deep Forensic Room
+                </button>
+              </motion.div>
+            )}
+
+            {/* Deep Forensic Room Render */}
+            <AnimatePresence>
+              {showPhase2 && <DeepForensicRoom scanId={result.id} />}
+            </AnimatePresence>
+
           </motion.div>
         )}
       </AnimatePresence>
