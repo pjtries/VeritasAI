@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+async-timeout
+httpx
