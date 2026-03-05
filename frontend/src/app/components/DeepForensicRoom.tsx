@@ -9,14 +9,20 @@ interface DeepForensicRoomProps {
     scanId: string;
 }
 
+interface ForensicData {
+    feature: string;
+    phase2_category: string;
+    results: Record<string, unknown>[];
+}
+
 export default function DeepForensicRoom({ scanId }: DeepForensicRoomProps) {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<ForensicData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDeepDive = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/scan/${scanId}/deep_dive`);
+                const response = await fetch(`http://127.0.0.1:8000/scan/${scanId}/deep_dive`);
                 if (response.ok) {
                     const json = await response.json();
                     setData(json);

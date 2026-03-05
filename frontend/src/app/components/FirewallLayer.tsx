@@ -8,8 +8,16 @@ interface FirewallLayerProps {
     scanId: string;
 }
 
+interface FirewallData {
+    inverse_diffusion_model: string;
+    latency_ms: number;
+    reconstruction_confidence: number;
+    status_message: string;
+    revert_action: string;
+}
+
 export default function FirewallLayer({ scanId }: FirewallLayerProps) {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<FirewallData | null>(null);
     const [loading, setLoading] = useState(false);
     const [initiated, setInitiated] = useState(false);
 
@@ -17,7 +25,7 @@ export default function FirewallLayer({ scanId }: FirewallLayerProps) {
         setLoading(true);
         setInitiated(true);
         try {
-            const response = await fetch(`http://localhost:8000/scan/${scanId}/firewall_reconstruction`, {
+            const response = await fetch(`http://127.0.0.1:8000/scan/${scanId}/firewall_reconstruction`, {
                 method: 'POST',
             });
             if (response.ok) {

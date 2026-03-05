@@ -9,8 +9,16 @@ interface SupremeCourtAgentProps {
     scanId: string;
 }
 
+interface SupremeCourtData {
+    verdict: string;
+    reasoning_log: string;
+    audit_trail: string;
+    confidence_calibration: number;
+    evidence_heatmap: string;
+}
+
 export default function SupremeCourtAgent({ scanId }: SupremeCourtAgentProps) {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<SupremeCourtData | null>(null);
     const [loading, setLoading] = useState(false);
     const [initiated, setInitiated] = useState(false);
 
@@ -18,7 +26,7 @@ export default function SupremeCourtAgent({ scanId }: SupremeCourtAgentProps) {
         setLoading(true);
         setInitiated(true);
         try {
-            const response = await fetch(`http://localhost:8000/scan/${scanId}/supreme_court`, {
+            const response = await fetch(`http://127.0.0.1:8000/scan/${scanId}/supreme_court`, {
                 method: 'POST',
             });
             if (response.ok) {

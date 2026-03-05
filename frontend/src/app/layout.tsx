@@ -23,11 +23,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased text-slate-900 dark:text-white tech-bg min-h-screen flex flex-col relative overflow-x-hidden transition-colors duration-300 font-sans`}
       >
-        {children}
+        {/* Background Decorative Rings */}
+        <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
+          <div className="pattern-circle w-[40vw] h-[40vw]"></div>
+          <div className="pattern-circle w-[60vw] h-[60vw] border-dashed opacity-50"></div>
+          <div className="pattern-circle w-[80vw] h-[80vw] opacity-30"></div>
+          <div className="absolute top-[-10%] left-[-10%] w-[30vw] h-[30vw] rounded-full bg-slate-200/50 dark:bg-blue-900/5 blur-[100px]"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-slate-200/50 dark:bg-slate-800/10 blur-[100px]"></div>
+        </div>
+
+        <div className="relative z-10 flex flex-col min-h-screen">
+          {children}
+        </div>
       </body>
     </html>
   );
